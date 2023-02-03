@@ -2194,6 +2194,31 @@ CV_EXPORTS_W void HoughLinesPointSet( InputArray point, OutputArray lines, int l
                                       double min_rho, double max_rho, double rho_step,
                                       double min_theta, double max_theta, double theta_step );
 
+/** @brief Finds lines in a set of points using the probabilistic Hough transform.
+
+The function finds lines in a set of points using a modification of the Hough transform.
+@include snippets/imgproc_HoughLinesPointSet.cpp
+@param point Input vector of points. Each vector must be encoded as a Point vector \f$(x,y)\f$. Type must be CV_32FC2 or CV_32SC2.
+@param lines Output vector of found lines. Each vector is encoded as a vector<Vec3d> \f$(votes, rho, theta)\f$.
+The larger the value of 'votes', the higher the reliability of the Hough line.
+@param linesMax Max count of Hough lines.
+@param threshold %Accumulator threshold parameter. Only those lines are returned that get enough
+votes ( \f$>\texttt{threshold}\f$ ).
+@param minRho Minimum value for \f$\rho\f$ for the accumulator (Note: \f$\rho\f$ can be negative. The absolute value \f$|\rho|\f$ is the distance of a line to the origin.).
+@param maxRho Maximum value for \f$\rho\f$ for the accumulator.
+@param rhoStep Distance resolution of the accumulator.
+@param minTheta Minimum angle value of the accumulator in radians.
+@param maxTheta Upper bound for the angle value of the accumulator in radians. The actual maximum
+angle may be slightly less than maxTheta, depending on the parameters minTheta and thetaStep.
+@param thetaStep Angle resolution of the accumulator in radians.
+@param minLineLength Minimum length for a line.
+@param maxGap Minimum gap between lines.
+ */
+CV_EXPORTS_W void HoughLinesPPointSet(InputArray points, std::vector<Vec4i>& lines, int linesMax, int threshold,
+                                      double minRho, double maxRho, double rhoStep,
+                                      double minTheta, double maxTheta, double thetaStep,
+                                      int minLineLength, int maxGap );
+
 /** @example samples/cpp/tutorial_code/ImgTrans/houghcircles.cpp
 An example using the Hough circle detector
 */

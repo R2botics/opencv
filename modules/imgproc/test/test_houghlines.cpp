@@ -274,6 +274,56 @@ void HoughLinesPointSetTest::run_test(void)
     EXPECT_EQ((int)(line_polar_i.at(0).val[2] * 100000.0f), (int)(Theta * 100000.0f));
 }
 
+TEST(HoughLinesPPointSet, CVTest)
+{
+    Mat src, dst, color_dst, point_set, finalP, finalPS;
+    src = imread("/home/rsquared/src/opencv/modules/imgproc/doc/pics/building.jpg", IMREAD_GRAYSCALE);
+    Canny(src, dst, 50, 200, 3);
+    cvtColor(dst, color_dst, COLOR_GRAY2BGR);
+    double rhoMin = 0.0f, rhoMax = 360.0f, rhoStep = 1;
+    double thetaMin = 0.0f, thetaMax = CV_PI / 2.0f, thetaStep = CV_PI / 180.0f;
+    int threshold = 25, minLineLength = 30, maxGap = 10, linesMax = INT_MAX;
+
+    // HoughLinesP
+    vector<Vec4i> linesP;
+    HoughLinesP(dst, linesP, rhoStep, thetaStep, threshold, minLineLength, maxGap);
+    color_dst.copyTo(finalP);
+    for (auto& lineSegments : linesP)
+    {
+        line(finalP, Point(lineSegments[0], lineSegments[1]),
+             Point(lineSegments[2], lineSegments[3]), Scalar(0,0,255));
+    }
+
+    // HoughLinesPPointSet
+    color_dst.copyTo(point_set);
+    vector<Point2i> points;
+    for (int row = 0; row < dst.rows; ++row)
+    {
+        for (int col = 0; col < dst.cols; ++col)
+        {
+            if (dst.at<uchar>(row, col) == 255)
+            {
+                points.emplace_back(col, row);
+                circle(point_set, Point(col, row), 0, Scalar(255,255,255), FILLED);
+            }
+        }
+    }
+    vector<Vec4i> linesPS;
+    HoughLinesPPointSet(points, linesPS, linesMax, threshold, rhoMin, rhoMax, rhoStep, thetaMin, thetaMax, thetaStep, minLineLength, maxGap);
+    color_dst.copyTo(finalPS);
+    for (auto& lineSegments : linesPS)
+    {
+        line(finalPS, Point(lineSegments[0], lineSegments[1]),
+             Point(lineSegments[2], lineSegments[3]), Scalar(0,0,255));
+    }
+
+    imshow("Source", src);
+    imshow("PointSet", point_set);
+    imshow("HoughLinesP Detected Lines", finalP);
+    imshow("HoughLinesPPointSet Detected Lines", finalPS);
+    waitKey(0);
+}
+
 TEST_P(StandartHoughLinesTest, regression)
 {
     run_test<Mat, Vec2f>(STANDART, "HoughLines.xml");
